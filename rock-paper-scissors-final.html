@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rock Paper Scissors</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+      color: white;
+      text-align: center;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+    }
+
+    .scoreboard {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .choices {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .choice {
+      padding: 1rem 2rem;
+      background: white;
+      color: #333;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .choice:hover {
+      transform: scale(1.1);
+    }
+
+    .animation-area {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .hand {
+      width: 140px;
+      height: 140px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 3rem;
+      transition: transform 0.3s ease;
+    }
+
+    .shake {
+      animation: shake 0.5s infinite;
+    }
+
+    @keyframes shake {
+      0% { transform: translateY(0); }
+      25% { transform: translateY(-15px); }
+      50% { transform: translateY(0); }
+      75% { transform: translateY(-15px); }
+      100% { transform: translateY(0); }
+    }
+
+    .countdown {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      height: 3rem;
+    }
+
+    .result {
+      font-size: 2rem;
+      margin-top: 1rem;
+      min-height: 2.5rem;
+    }
+
+    .highlight-win {
+      color: #00ff99;
+    }
+
+    .highlight-lose {
+      color: #ff4444;
+    }
+
+    .highlight-tie {
+      color: #ffff66;
+    }
+
+    button#reset {
+      margin-top: 2rem;
+      padding: 0.75rem 1.5rem;
+      background: #ff6666;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button#reset:hover {
+      background: #ff3333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rock, Paper, Scissors</h1>
+
+  <div class="scoreboard">
+    Player: <span id="player-score">0</span> | Computer: <span id="computer-score">0</span>
+  </div>
+
+  <div class="choices">
+    <button class="choice" onclick="selectMove('rock')">👊 Rock</button>
+    <button class="choice" onclick="selectMove('paper')">✋ Paper</button>
+    <button class="choice" onclick="selectMove('scissors')">✌️ Scissors</button>
+  </div>
+
+  <div class="countdown" id="countdown"></div>
+
+  <div class="animation-area">
+    <div class="hand" id="player-hand">👊</div>
+    <div class="hand" id="computer-hand">👊</div>
+  </div>
+
+  <div class="result" id="result-text"></div>
+  <button id="reset" onclick="resetGame()">Reset Game</button>
+
+  <script>
+    const hands = ['rock', 'paper', 'scissors'];
+    const emojis = {
+      rock: '👊',
+      paper: '✋',
+      scissors: '✌️'
+    };
+
+    let playerScore = 0;
+    let computerScore = 0;
+    let playerMove = null;
+
+    function selectMove(move) {
+      playerMove = move;
+      startRound();
+    }
+
+    function startRound() {
+      const playerHand = document.getElementById('player-hand');
+      const computerHand = document.getElementById('computer-hand');
+      const resultText = document.getElementById('result-text');
+      const countdown = document.getElementById('countdown');
+
+      playerHand.textContent = '👊';
+      computerHand.textContent = '👊';
+      playerHand.classList.add('shake');
+      computerHand.classList.add('shake');
+
+      const phrases = ['👊 Rock', '✋ Paper', '✌️ Scissors', 'Shoot!'];
+      let index = 0;
+
+      const interval = setInterval(() => {
+        if (index < phrases.length) {
+          countdown.textContent = phrases[index];
+          index++;
+        } else {
+          clearInterval(interval);
+          countdown.textContent = '';
+          playerHand.classList.remove('shake');
+          computerHand.classList.remove('shake');
+
+          const computerMove = hands[Math.floor(Math.random() * 3)];
+          revealMoves(playerMove, computerMove);
+        }
+      }, 600);
+    }
+
+    function revealMoves(player, computer) {
+      const playerHand = document.getElementById('player-hand');
+      const computerHand = document.getElementById('computer-hand');
+      playerHand.textContent = emojis[player];
+      computerHand.textContent = emojis[computer];
+
+      const result = determineWinner(player, computer);
+      displayResult(result);
+    }
+
+    function determineWinner(player, computer) {
+      if (player === computer) return 'tie';
+      if (
+        (player === 'rock' && computer === 'scissors') ||
+        (player === 'scissors' && computer === 'paper') ||
+        (player === 'paper' && computer === 'rock')
+      ) {
+        playerScore++;
+        return 'win';
+      } else {
+        computerScore++;
+        return 'lose';
+      }
+    }
+
+    function displayResult(result) {
+      const resultText = document.getElementById('result-text');
+      const playerScoreEl = document.getElementById('player-score');
+      const computerScoreEl = document.getElementById('computer-score');
+
+      resultText.className = 'result';
+
+      if (result === 'win') {
+        resultText.textContent = "You win! 🎉";
+        resultText.classList.add('highlight-win');
+      } else if (result === 'lose') {
+        resultText.textContent = "You lose! 😢";
+        resultText.classList.add('highlight-lose');
+      } else {
+        resultText.textContent = "It's a tie! 🤝";
+        resultText.classList.add('highlight-tie');
+      }
+
+      playerScoreEl.textContent = playerScore;
+      computerScoreEl.textContent = computerScore;
+    }
+
+    function resetGame() {
+      playerScore = 0;
+      computerScore = 0;
+      document.getElementById('player-score').textContent = '0';
+      document.getElementById('computer-score').textContent = '0';
+      document.getElementById('player-hand').textContent = '👊';
+      document.getElementById('computer-hand').textContent = '👊';
+      document.getElementById('result-text').textContent = '';
+      document.getElementById('countdown').textContent = '';
+    }
+  </script>
+</body>
+</html>
